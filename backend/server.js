@@ -31,6 +31,43 @@ app.post("/faqs", async (req, res) => { // when the server receives a http post 
     res.status(201).json(faq);
 });
 
+// UPDATE FAQ
+app.put("/faqs/:id", async (req, res) => {
+  try {
+    const updatedFaq = await Faq.findByIdAndUpdate(
+      req.params.id,      // FAQ ID from URL
+      req.body,           // New data from frontend
+      {
+        new: true,        // Return updated document
+        runValidators: true
+      }
+    );
+
+    if (!updatedFaq) {
+      return res.status(404).json({ error: "FAQ not found" });
+    }
+
+    res.json(updatedFaq);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
+// DELETE FAQ
+app.delete("/faqs/:id", async (req, res) => {
+  try {
+    const deletedFaq = await Faq.findByIdAndDelete(req.params.id);
+
+    if (!deletedFaq) {
+      return res.status(404).json({ error: "FAQ not found" });
+    }
+
+    res.status(204).send();   // Success, no content
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
 // DATABASE CONNECTION
 mongoose.connect(process.env.MONGO_URI)
     .then(() => console.log("MongoDB connected"))
